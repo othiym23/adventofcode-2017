@@ -1,28 +1,12 @@
-const BANKS = [
-  0,
-  5,
-  10,
-  0,
-  11,
-  14,
-  13,
-  4,
-  11,
-  8,
-  8,
-  7,
-  1,
-  4,
-  12,
-  11
-]
+const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
-module.exports = {
-  BANKS,
-  part1,
-  part2,
-  rebalance
-}
+const provided = readFileSync(resolve(__dirname, '../inputs/day-06.input'), 'ascii').trim()
+
+const BANKS = provided.split(/\s+/).map(v => parseInt(v, 10))
+
+console.log('the solution to part 1 is', part1(BANKS))
+console.log('the solution to part 2 is', part2(BANKS))
 
 function currentConfig (memory) {
   return memory.join(' ')
@@ -76,7 +60,6 @@ function part2 (initial) {
     rebalance(working)
     if (seen.has(currentConfig(working))) {
       cycleStart = currentConfig(working)
-      console.log('cycleStart is %s', cycleStart)
       break
     }
     turns++
@@ -91,6 +74,3 @@ function part2 (initial) {
 
   return turns
 }
-
-console.log(part1(BANKS))
-console.log(part2(BANKS))
