@@ -1,5 +1,6 @@
 const assert = require('assert')
 const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
 const HEX_COMPASS = ['n', 'ne', 'se', 's', 'sw', 'nw']
 
@@ -8,7 +9,7 @@ assert.equal(run('ne,ne,sw,sw').distance, 0)
 assert.equal(run('ne,ne,s,s').distance, 2)
 assert.equal(run('se,sw,se,sw,sw').distance, 3)
 
-const path = readFileSync('./day-11.txt', 'ascii').trim()
+const path = readFileSync(resolve(__dirname, '../inputs/day-11.input'), 'ascii').trim()
 console.log('path is', run(path).distance, 'steps long.')
 console.log('max distance was', run(path).maxDistance + '.')
 
