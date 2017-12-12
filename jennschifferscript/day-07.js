@@ -1,7 +1,8 @@
-const readFileSync = require('fs').readFileSync
 const assert = require('assert')
+const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
-let vertices = readFileSync('./day-7-vertices.txt', 'ascii').trim().split(/\n/)
+const vertices = readFileSync(resolve(__dirname, '../inputs/day-07.input'), 'ascii').trim().split(/\n/)
 
 const edges = new Map()
 const weights = new Map()
