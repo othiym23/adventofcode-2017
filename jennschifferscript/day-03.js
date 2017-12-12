@@ -1,11 +1,23 @@
 const assert = require('assert')
+const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
-module.exports = solve
+const input = readFileSync(resolve(__dirname, '../inputs/day-03.input'), 'ascii').trim()
+const goal = parseInt(input, 10)
 
 const RIGHT = Symbol('RIGHT')
 const UP = Symbol('UP')
 const LEFT = Symbol('LEFT')
 const DOWN = Symbol('DOWN')
+
+assert.equal(run(1), 2)
+assert.equal(run(2), 4)
+assert.equal(run(4), 5)
+assert.equal(run(5), 10)
+assert.equal(run(10), 11)
+assert.equal(run(11), 23)
+
+console.log('the solution to part 2 is', run(goal))
 
 function generate (turn) {
   const size = turn * 2 - 1
@@ -104,7 +116,7 @@ function populate (goal, square, visit) {
   }
 }
 
-function solve (goal) {
+function run (goal) {
   let turn = 0
   let square = []
 
