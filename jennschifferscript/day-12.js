@@ -31,9 +31,18 @@ assert.equal(
 console.log('There are', run2(provided), 'program groups total.')
 
 function run1 (input) {
-  const graph = prepare1(input)
+  const graph = prepare(input)
   const seen = new Set()
   const ROOT = '0'
+
+  function visit (node) {
+    for (let nxt of graph.get(node)) {
+      if (!seen.has(nxt)) {
+        seen.add(nxt)
+        visit(nxt, seen, graph)
+      }
+    }
+  }
 
   seen.add(ROOT)
   visit(ROOT, seen, graph)
@@ -42,9 +51,19 @@ function run1 (input) {
 }
 
 function run2 (input) {
-  const graph = prepare1(input)
+  const graph = prepare(input)
   const globalSeen = new Set()
   const groups = new Set()
+
+  function visit (node, seen) {
+    for (let nxt of graph.get(node)) {
+      if (!seen.has(nxt)) {
+        globalSeen.add(nxt)
+        seen.add(nxt)
+        visit(nxt, seen, globalSeen, graph)
+      }
+    }
+  }
 
   for (let lh of graph.keys()) {
     if (!globalSeen.has(lh)) {
@@ -52,33 +71,14 @@ function run2 (input) {
       const newGroup = new Set()
       newGroup.add(lh)
       groups.add(newGroup)
-      visitWithGlobal(lh, newGroup, globalSeen, graph)
+      visit(lh, newGroup)
     }
   }
 
   return groups.size
 }
 
-function visit (node, seen, graph) {
-  for (let nxt of graph.get(node)) {
-    if (!seen.has(nxt)) {
-      seen.add(nxt)
-      visit(nxt, seen, graph)
-    }
-  }
-}
-
-function visitWithGlobal (node, seen, globalSeen, graph) {
-  for (let nxt of graph.get(node)) {
-    if (!seen.has(nxt)) {
-      globalSeen.add(nxt)
-      seen.add(nxt)
-      visitWithGlobal(nxt, seen, globalSeen, graph)
-    }
-  }
-}
-
-function prepare1 (input) {
+function prepare (input) {
   const old = input.split(/\n/).map(l => l.trim().split(' <-> ')).map(l => [l[0], l[1].split(', ')])
   const lessOld = new Map()
   for (let [lh, rhs] of old) lessOld.set(lh, new Set(rhs))
