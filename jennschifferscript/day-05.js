@@ -1,6 +1,9 @@
 const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
-let instructions = readFileSync('./day-5-instruction-list.txt', 'ascii').trim().split(/\n/).map(v => parseInt(v, 10))
+const provided = readFileSync(resolve(__dirname, '../inputs/day-05.input'), 'ascii').trim()
+
+let instructions = provided.split(/\n/).map(v => parseInt(v, 10))
 
 let pos = 0
 let steps = 0
@@ -16,12 +19,12 @@ while (true) {
   steps++
 }
 
-console.log('escaped the maze in %d steps', steps)
+console.log('escaped the maze the first time in %d steps', steps)
 
 pos = 0
 steps = 0
 
-instructions = readFileSync('./day-5-instruction-list.txt', 'ascii').trim().split(/\n/).map(v => parseInt(v, 10))
+instructions = provided.split(/\n/).map(v => parseInt(v, 10))
 
 while (true) {
   const offset = instructions[pos]
@@ -40,4 +43,4 @@ while (true) {
   steps++
 }
 
-console.log('escaped the maze in %d steps', steps)
+console.log('escaped the maze the second time in %d steps', steps)
