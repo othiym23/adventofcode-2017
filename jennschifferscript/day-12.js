@@ -60,7 +60,7 @@ function run2 (input) {
 }
 
 function visit (node, seen, graph) {
-  for (let nxt of graph.get(node).values()) {
+  for (let nxt of graph.get(node)) {
     if (!seen.has(nxt)) {
       seen.add(nxt)
       visit(nxt, seen, graph)
@@ -69,7 +69,7 @@ function visit (node, seen, graph) {
 }
 
 function visitWithGlobal (node, seen, globalSeen, graph) {
-  for (let nxt of graph.get(node).values()) {
+  for (let nxt of graph.get(node)) {
     if (!seen.has(nxt)) {
       globalSeen.add(nxt)
       seen.add(nxt)
