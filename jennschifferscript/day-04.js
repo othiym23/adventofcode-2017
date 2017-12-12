@@ -1,8 +1,7 @@
-const fs = require('fs')
+const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
-const passphrases = fs.readFileSync('./day-4-passphrase-list.txt', 'ascii').trim().split(/\n/)
-
-console.log('length', passphrases.length)
+const passphrases = readFileSync(resolve(__dirname, '../inputs/day-04.input'), 'ascii').trim().split(/\n/)
 
 let count = 0
 
