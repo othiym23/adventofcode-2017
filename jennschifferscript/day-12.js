@@ -39,7 +39,7 @@ function run1 (input) {
     for (let nxt of graph.get(node)) {
       if (!seen.has(nxt)) {
         seen.add(nxt)
-        visit(nxt, seen, graph)
+        visit(nxt)
       }
     }
   }
@@ -60,7 +60,7 @@ function run2 (input) {
       if (!seen.has(nxt)) {
         globalSeen.add(nxt)
         seen.add(nxt)
-        visit(nxt, seen, globalSeen, graph)
+        visit(nxt, seen)
       }
     }
   }
