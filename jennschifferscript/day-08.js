@@ -1,7 +1,8 @@
-const readFileSync = require('fs').readFileSync
 const assert = require('assert')
+const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
-let instructions = readFileSync('./day-8-program.txt', 'ascii').trim().split(/\n/)
+const instructions = readFileSync(resolve(__dirname, '../inputs/day-08.input'), 'ascii').trim().split(/\n/)
 
 const registers = new Map()
 let globalBiggest = 0
