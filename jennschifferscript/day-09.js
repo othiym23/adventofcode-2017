@@ -1,7 +1,8 @@
 const assert = require('assert')
 const readFileSync = require('fs').readFileSync
+const resolve = require('path').resolve
 
-let stream = readFileSync('./day-9.txt', 'ascii').trim()
+const stream = readFileSync(resolve(__dirname, '../inputs/day-09.input'), 'ascii').trim()
 
 let garbageMode = false
 let open = 0
