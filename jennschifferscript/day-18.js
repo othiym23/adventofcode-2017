@@ -91,7 +91,7 @@ function * process (instructions, state) {
   let pos = 0
   registers[id].set('p', id)
 
-  while (true) {
+  while (pos < instructions.length && pos >= 0) {
     const [operation, op1, op2] = instructions[pos].split(/\s+/)
     switch (operation) {
       case 'set':
@@ -130,8 +130,6 @@ function * process (instructions, state) {
       default:
         throw new TypeError(operation + ' is not a valid day-18 operation')
     }
-    assert(pos < instructions.length, "can't branch off to infinity: " + pos)
-    assert(pos >= 0, "can't branch off to negativland: " + pos)
     pos++
     yield
   }
