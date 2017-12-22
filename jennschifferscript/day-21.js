@@ -13,6 +13,101 @@ const BUFFERS = {
   3: makeSquare(3)
 }
 
+// By taking advantage of the knowledge that the canvas is composed of tiles,
+// and that the preparation process generates the entire inventory of tiles,
+// this class is able to save a lot of memory and computation.
+//
+// This class exploits two key properties of the problem domain:
+//
+// 1. The contents of the tiles are immutable, so the canvas can store
+//    references to the tiles instead of doing any allocation or copying. This
+//    reduces memory consumption to O(sqrt(n / m)) per canvas, where n is the
+//    full side * side length of the array and m is the side length of each
+//    tile.
+// 2. Both the full list of tiles and the tiles themselves can be stored as
+//    simple linear arrays (or, in this case, an array of Buffers). Figuring
+//    out the algorithm to translate from Cartesian coördinates is slightly
+//    nontrivial, and involves a few division operations, but is otherwise
+//    quite fast. All of the trickiness is confined to the get() and setTile()
+//    operations, and overall this representation is much easier to deal with
+//    than an arbitrary number of nested arrays.
+//
+// Additionally, one fairly simple optimization improves performance by
+// reducing allocations and GC pressure: the extract operation needs to copy
+// out a string extracted from the canvas in a way that may overlap one or two
+// tiles. Instead of allocating a fresh buffer for each invocation, cache
+// buffers for each size of extraction window and reuse it across invocations,
+// being careful to overwrite all of the buffer's memory each time.
+class TiledCanvas {
+  constructor (tilesPerSide, tileSize) {
+    this.tilesPerSide = tilesPerSide
+    this.tileSize = tileSize
+    this.side = tilesPerSide * tileSize
+    this.tiles = new Array(tilesPerSide * tilesPerSide)
+  }
+
+  setTile (tileX, tileY, tile) {
+    this.tiles[tileX + tileY * this.tilesPerSide] = tile
+  }
+
+  next (rules) {
+    let tileSize
+    if (this.side % 2 === 0) {
+      tileSize = 3
+    } else if (this.side % 3 === 0) {
+      tileSize = 4
+    } else throw new TypeError("don't know what to do with size " + this.side)
+    const extractSize = tileSize - 1
+    const tilesPerSide = this.side / extractSize
+    const canvas = new TiledCanvas(tilesPerSide, tileSize)
+
+    for (let y = 0; y < tilesPerSide; y++) {
+      for (let x = 0; x < tilesPerSide; x++) {
+        canvas.setTile(x, y, rules.get(this._extract(x, y, extractSize)))
+      }
+    }
+
+    return canvas
+  }
+
+  popcnt () {
+    let count = 0
+    for (let tile of this.tiles) {
+      count += tile.toString().replace(/\./g, '').length
+    }
+    return count
+  }
+
+  // 012    0123    012 012
+  // 345    4567    345 345
+  // 678 -> 89ab    678 678
+  //        cdef ->
+  //                012 012
+  //                345 345
+  //                678 678
+  get (x, y) {
+    let tileX = Math.floor(x / this.tileSize)
+    let tileY = Math.floor(y / this.tileSize)
+    let tileIndex = tileX + tileY * this.tilesPerSide
+
+    let inX = x % this.tileSize
+    let inY = y % this.tileSize
+    let index = inX + inY * this.tileSize
+
+    return this.tiles[tileIndex][index]
+  }
+
+  _extract (x, y, size) {
+    let extracted = BUFFERS[size]
+    for (let k = 0; k < size; k++) {
+      for (let j = 0; j < size; j++) {
+        extracted[k * size + j] = this.get(x * size + j, y * size + k)
+      }
+    }
+    return extracted.toString()
+  }
+}
+
 assert.equal(
   run(
     `../.# => ##./#../...
@@ -29,52 +124,13 @@ console.log('%s dots active after 18 rounds using rulebook', run(input, 18))
 function run (input, iterations) {
   const rulebook = prepare(input)
 
-  let aht = Buffer.from(START.replace(/\n/g, ''), 'ascii')
+  let aht = new TiledCanvas(1, 3)
+  aht.setTile(0, 0, Buffer.from(START.replace(/\n/g, ''), 'ascii'))
   for (let i = 0; i < iterations; i++) {
-    const side = Math.sqrt(aht.length)
-    if (side % 2 === 0) {
-      aht = enhance(aht, 2, rulebook)
-    } else if (side % 3 === 0) {
-      aht = enhance(aht, 3, rulebook)
-    } else throw new Error("Don't know how to handle a square of size " + side)
+    aht = aht.next(rulebook)
   }
 
-  return aht.toString().replace(/\./g, '').length
-}
-
-function enhance (source, s, rulebook) {
-  const side = Math.sqrt(source.length)
-  const steps = side / s
-  const n = s + 1
-  let out = makeSquare(steps * n)
-  for (let y = 0; y < steps; y++) {
-    for (let x = 0; x < steps; x++) {
-      const replacement = rulebook.get(extract(source, s, x, y).toString())
-      tile(out, replacement, x, y)
-    }
-  }
-  return out
-}
-
-function extract (source, side, ox, oy) {
-  const fullSide = Math.sqrt(source.length)
-  let extracted = BUFFERS[side]
-  for (let k = 0; k < side; k++) {
-    for (let j = 0; j < side; j++) {
-      extracted[k * side + j] = source[ox * side + j + (oy * side + k) * fullSide]
-    }
-  }
-  return extracted
-}
-
-function tile (target, pattern, ox, oy) {
-  const side = Math.sqrt(pattern.length)
-  const increment = Math.sqrt(target.length) / side
-  for (let k = 0; k < side; k++) {
-    for (let j = 0; j < side; j++) {
-      target[ox * side + j + (oy * side + k) * (side * increment)] = pattern[j + k * side]
-    }
-  }
+  return aht.popcnt()
 }
 
 function prepare (input) {
