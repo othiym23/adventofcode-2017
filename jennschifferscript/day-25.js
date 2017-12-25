@@ -4,59 +4,27 @@ const LEFT = Symbol('left')
 const RIGHT = Symbol('right')
 
 const STATES = {
-  A: [
-    { write: 1, direction: RIGHT, next: 'B' },
-    { write: 0, direction: RIGHT, next: 'C' }
-  ],
-  B: [
-    { write: 0, direction: LEFT, next: 'A' },
-    { write: 0, direction: RIGHT, next: 'D' }
-  ],
-  C: [
-    { write: 1, direction: RIGHT, next: 'D' },
-    { write: 1, direction: RIGHT, next: 'A' }
-  ],
-  D: [
-    { write: 1, direction: LEFT, next: 'E' },
-    { write: 0, direction: LEFT, next: 'D' }
-  ],
-  E: [
-    { write: 1, direction: RIGHT, next: 'F' },
-    { write: 1, direction: LEFT, next: 'B' }
-  ],
-  F: [
-    { write: 1, direction: RIGHT, next: 'A' },
-    { write: 1, direction: RIGHT, next: 'E' }
-  ]
+  A: [ { write: 1, direction: RIGHT, next: 'B' },
+       { write: 0, direction: RIGHT, next: 'C' } ],
+  B: [ { write: 0, direction: LEFT, next: 'A' },
+       { write: 0, direction: RIGHT, next: 'D' } ],
+  C: [ { write: 1, direction: RIGHT, next: 'D' },
+       { write: 1, direction: RIGHT, next: 'A' } ],
+  D: [ { write: 1, direction: LEFT, next: 'E' },
+       { write: 0, direction: LEFT, next: 'D' } ],
+  E: [ { write: 1, direction: RIGHT, next: 'F' },
+       { write: 1, direction: LEFT, next: 'B' } ],
+  F: [ { write: 1, direction: RIGHT, next: 'A' },
+       { write: 1, direction: RIGHT, next: 'E' } ]
 }
 
 assert.equal(
   run1(
     {
-      A: [
-        {
-          write: 1,
-          direction: RIGHT,
-          next: 'B'
-        },
-        {
-          write: 0,
-          direction: LEFT,
-          next: 'B'
-        }
-      ],
-      B: [
-        {
-          write: 1,
-          direction: LEFT,
-          next: 'A'
-        },
-        {
-          write: 1,
-          direction: RIGHT,
-          next: 'A'
-        }
-      ]
+      A: [ { write: 1, direction: RIGHT, next: 'B' },
+           { write: 0, direction: LEFT, next: 'B' } ],
+      B: [ { write: 1, direction: LEFT, next: 'A' },
+           { write: 1, direction: RIGHT, next: 'A' } ]
     },
     6
   ),
